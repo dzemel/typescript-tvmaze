@@ -12775,7 +12775,7 @@ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"
 var $showsList = $("#showsList");
 var $episodesArea = $("#episodesArea");
 var $searchForm = $("#searchForm");
-var defaultImage = 'https://www.google.com/imgres?imgurl=https%3A%2F%2Fblackmantkd.com%2Fwp-content%2Fuploads%2F2017%2F04%2Fdefault-image-620x600.jpg&imgrefurl=https%3A%2F%2Fblackmantkd.com%2Fhome%2Fdefault-image%2F&tbnid=E__DFTIbn9J8IM&vet=12ahUKEwiLiff-843wAhXalIQIHagZCsQQMygAegUIARDOAQ..i&docid=3Spo0_G2kBrVVM&w=620&h=600&q=default%20image&ved=2ahUKEwiLiff-843wAhXalIQIHagZCsQQMygAegUIARDOAQ';
+var defaultImage = 'https://martialartsplusinc.com/wp-content/uploads/2017/04/default-image-720x530.jpg';
 var baseUrl = 'http://api.tvmaze.com/search/shows?q=';
 function getShowsByTerm(term) {
     return __awaiter(this, void 0, void 0, function () {
@@ -12786,11 +12786,12 @@ function getShowsByTerm(term) {
                 case 1:
                     response = _a.sent();
                     shows = response.data.map(function (show) {
+                        var _a;
                         return {
                             "id": show.show.id,
                             "name": show.show.name,
                             "summary": show.show.summary,
-                            "image": show.show.image.original
+                            "image": (((_a = show.show.image) === null || _a === void 0 ? void 0 : _a.original) || defaultImage)
                         };
                     });
                     console.log("shows", shows);
@@ -12799,12 +12800,27 @@ function getShowsByTerm(term) {
         });
     });
 }
+$showsList.on("click", ".Show-getEpisodes", function (e) {
+    return __awaiter(this, void 0, void 0, function () {
+        var showId;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    showId = $(e.target).closest(".Show").attr("data-show-id");
+                    return [4 /*yield*/, getEpisodesOfShow(showId)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+});
 /** Given list of shows, create markup for each and to DOM */
 function populateShows(shows) {
     $showsList.empty();
     for (var _i = 0, shows_1 = shows; _i < shows_1.length; _i++) {
         var show = shows_1[_i];
-        var $show = $("<div data-show-id=\"" + show.id + "\" class=\"Show col-md-12 col-lg-6 mb-4\">\n         <div class=\"media\">\n           <img\n              src=\"" + show.image + "\"\n              alt=\"" + defaultImage + "\"\n              class=\"w-25 mr-3\">\n           <div class=\"media-body\">\n             <h5 class=\"text-primary\">" + show.name + "</h5>\n             <div><small>" + show.summary + "</small></div>\n             <button class=\"btn btn-outline-light btn-sm Show-getEpisodes\">\n               Episodes\n             </button>\n           </div>\n         </div>\n       </div>\n      ");
+        var $show = $("<div data-show-id=\"" + show.id + "\" class=\"Show col-md-12 col-lg-6 mb-4\">\n         <div class=\"media\">\n           <img\n              src=\"" + show.image + "\"\n              class=\"w-25 mr-3\">\n           <div class=\"media-body\">\n             <h5 class=\"text-primary\">" + show.name + "</h5>\n             <div><small>" + show.summary + "</small></div>\n             <button class=\"btn btn-outline-light btn-sm Show-getEpisodes\" >\n               Episodes\n             </button>\n           </div>\n         </div>\n       </div>\n      ");
         $showsList.append($show);
     }
 }
@@ -12845,9 +12861,32 @@ $searchForm.on("submit", function (evt) {
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
  */
-// async function getEpisodesOfShow(id) { }
+function getEpisodesOfShow(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var episodesUrl, res, episodes;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    episodesUrl = "http://api.tvmaze.com/shows/" + id + "/episodes";
+                    return [4 /*yield*/, axios_1.default.get(episodesUrl)];
+                case 1:
+                    res = _a.sent();
+                    episodes = res.data.map(function (episode) {
+                        return {
+                            "id": episode.id,
+                            "name": episode.name,
+                            "season": episode.season,
+                            "number": episode.number
+                        };
+                    });
+                    console.log(episodes);
+                    return [2 /*return*/, episodes];
+            }
+        });
+    });
+}
 /** Write a clear docstring for this function... */
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes) { }
 
 
 /***/ })

@@ -4,8 +4,8 @@ import * as $ from 'jquery';
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
-const defaultImage: string = 'https://www.google.com/imgres?imgurl=https%3A%2F%2Fblackmantkd.com%2Fwp-content%2Fuploads%2F2017%2F04%2Fdefault-image-620x600.jpg&imgrefurl=https%3A%2F%2Fblackmantkd.com%2Fhome%2Fdefault-image%2F&tbnid=E__DFTIbn9J8IM&vet=12ahUKEwiLiff-843wAhXalIQIHagZCsQQMygAegUIARDOAQ..i&docid=3Spo0_G2kBrVVM&w=620&h=600&q=default%20image&ved=2ahUKEwiLiff-843wAhXalIQIHagZCsQQMygAegUIARDOAQ'
-const baseUrl: string = 'http://api.tvmaze.com/search/shows?q='
+const defaultImage: string = 'https://martialartsplusinc.com/wp-content/uploads/2017/04/default-image-720x530.jpg';
+const baseUrl: string = 'http://api.tvmaze.com/search/shows?q=';
 
 
 /** Given a search term, search for tv shows that match that query.
@@ -22,19 +22,30 @@ interface Show {
   image: string;
 }
 
+interface Episode {
+  id: number;
+  name: string;
+  season: number;
+  number: number;
+}
+
 async function getShowsByTerm(term: string){
   // ADD: Remove placeholder & make request to TVMaze search shows API.
   let response = await axios.get(`${baseUrl}${term}`);
-  let shows = response.data.map((show) => {return {
+  let shows: Show = response.data.map((show) => {return {
     "id": show.show.id, 
     "name":show.show.name, 
     "summary": show.show.summary,
-    "image": show.show.image.original
+    "image": (show.show.image?.original || defaultImage)
   }});
   console.log("shows", shows);
    return shows;
 }
 
+$showsList.on("click", ".Show-getEpisodes", async function(e) {
+  let showId = $(e.target).closest(".Show").attr("data-show-id");
+	await getEpisodesOfShow(showId)
+});
 
 /** Given list of shows, create markup for each and to DOM */
 
@@ -47,12 +58,11 @@ function populateShows(shows) {
          <div class="media">
            <img
               src="${show.image}"
-              alt="${defaultImage}"
               class="w-25 mr-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
              <div><small>${show.summary}</small></div>
-             <button class="btn btn-outline-light btn-sm Show-getEpisodes">
+             <button class="btn btn-outline-light btn-sm Show-getEpisodes" >
                Episodes
              </button>
            </div>
@@ -69,7 +79,7 @@ function populateShows(shows) {
  */
 
 async function searchForShowAndDisplay() {
-  const term = $("#searchForm-term").val();
+  const term = $("#searchForm-term").val() as string;
   const shows = await getShowsByTerm(term);
 
   $episodesArea.hide();
@@ -86,8 +96,21 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id) {
+
+  const episodesUrl =`http://api.tvmaze.com/shows/${id}/episodes`;
+  const res = await axios.get(episodesUrl);
+  let episodes: Episode = res.data.map((episode) => {return {
+    "id": episode.id, 
+    "name":episode.name, 
+    "season": episode.season,
+    "number": episode.number
+  }});
+  
+  console.log(episodes);
+  return episodes;
+}
 
 /** Write a clear docstring for this function... */
 
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes) { }
